@@ -84,6 +84,10 @@ int main(int argc, char** argv)
                     {
                         session->send(requestStr);
                     })
+        .WithEnterCallback([](bsio::net::http::HttpSession::Ptr)
+        {
+            
+        })
         .WithRecvBufferSize(1024)
         .WithClosedHandler([](TcpSession::Ptr session)
                             {

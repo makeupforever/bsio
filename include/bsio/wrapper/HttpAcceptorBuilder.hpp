@@ -2,31 +2,13 @@
 
 #include <bsio/http/HttpService.hpp>
 #include <bsio/wrapper/AcceptorBuilder.hpp>
+#include <bsio/wrapper/internal/HttpSessionBuilder.hpp>
 
 namespace bsio {
 
     class HttpAcceptorBuilder : public internal::BaseSocketAcceptorBuilder<HttpAcceptorBuilder>,
-                                public internal::BaseSessionBuilder<HttpAcceptorBuilder>
+                                public internal::BaseHttpBuilder<HttpAcceptorBuilder>
     {
-    public:
-        HttpAcceptorBuilder& WithEnterCallback(bsio::net::http::HttpSession::EnterCallback callback)
-        {
-            mEnterCallback = callback;
-            return *this;
-        }
-
-        HttpAcceptorBuilder& WithParserCallback(bsio::net::http::HttpSession::HttpParserCallback callback)
-        {
-            mParserCallback = callback;
-            return *this;
-        }
-
-        HttpAcceptorBuilder& WithWsCallback(bsio::net::http::HttpSession::WsCallback handler)
-        {
-            mWsCallback = handler;
-            return *this;
-        }
-
     protected:
         void beforeStartAccept() override
         {
@@ -43,40 +25,7 @@ namespace bsio {
                 }
             };
 
-            auto httpSession = std::make_shared<bsio::net::http::HttpSession>();
-
-            httpSession->setHttpCallback(mParserCallback);
-            httpSession->setWSCallback(mWsCallback);
-
-            auto httpParser = std::make_shared<bsio::net::http::HTTPParser>(HTTP_BOTH);
-            auto dataHandler = [=](TcpSession::Ptr session, const char* buffer, size_t len) {
-                (void)session;
-                size_t retlen = 0;
-
-                if (httpParser->isWebSocket())
-                {
-                    retlen = bsio::net::http::HttpService::ProcessWebSocket(buffer,
-                        len,
-                        httpParser,
-                        httpSession);
-                }
-                else
-                {
-                    retlen = bsio::net::http::HttpService::ProcessHttp(buffer,
-                        len,
-                        httpParser,
-                        httpSession);
-                }
-
-                return retlen;
-            };
-
-            BaseSessionBuilder<HttpAcceptorBuilder>::mOption->dataHandler = dataHandler;
-            AddEnterCallback([callback = mEnterCallback, httpSession](TcpSession::Ptr session)
-                {
-                    httpSession->setSession(session);
-                    callback(httpSession);
-                });
+            setupHttp();
         }
 
         void endStartAccept() override
@@ -85,11 +34,6 @@ namespace bsio {
             *newOption = *BaseSessionBuilder<HttpAcceptorBuilder>::mOption;
             BaseSessionBuilder<HttpAcceptorBuilder>::mOption = newOption;
         }
-
-    private:
-        bsio::net::http::HttpSession::EnterCallback mEnterCallback;
-        bsio::net::http::HttpSession::HttpParserCallback mParserCallback;
-        bsio::net::http::HttpSession::WsCallback    mWsCallback;
     };
 
 }

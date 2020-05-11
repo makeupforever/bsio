@@ -13,7 +13,7 @@ namespace bsio {
     {
     };
 
-    class TcpSessionConnectBuilder : public internal::BaseTcpSessionConnectBuilder<TcpSessionConnectBuilder>
+    class TcpSessionConnectBuilder : public internal::BaseTcpSessionConnectBuilder<TcpSessionConnectBuilder, internal::BaseSessionBuilder<TcpSessionConnectBuilder>>
     {
     public:
         TcpSessionConnectBuilder& WithDataHandler(TcpSession::DataHandler handler)

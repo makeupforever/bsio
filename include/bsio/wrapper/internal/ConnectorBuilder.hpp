@@ -118,9 +118,9 @@ namespace bsio { namespace internal {
         std::atomic_bool    mHasSettingEstablishHandler = false;
     };
 
-    template<typename Derived>
+    template<typename Derived, typename SessionBuilder>
     class BaseTcpSessionConnectBuilder :    public internal::BaseSocketConnectBuilder<Derived>,
-                                            public internal::BaseSessionBuilder<Derived>
+                                            public SessionBuilder
     {
     private:
         void verify() const override

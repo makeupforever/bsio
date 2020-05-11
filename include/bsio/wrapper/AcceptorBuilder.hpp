@@ -1,7 +1,6 @@
 #pragma once
 
 #include <bsio/TcpAcceptor.hpp>
-#include <bsio/http/HttpService.hpp>
 #include <bsio/wrapper/internal/SessionBuilder.hpp>
 #include <bsio/wrapper/internal/AcceptorBuilder.hpp>
 
